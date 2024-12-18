@@ -1,45 +1,30 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 
 // Middleware
+app.use(cors());
 app.use(bodyParser.json());
 
-// Route for calculations
+// Route to handle calculations
 app.post("/calculate", (req, res) => {
-  const { num1, num2, operation } = req.body;
+  const { expression } = req.body;
 
-  if (typeof num1 !== "number" || typeof num2 !== "number") {
-    return res.status(400).json({ error: "Invalid numbers" });
+  try {
+    // Evaluate the expression safely
+    const result = eval(expression); // In production, use a safer eval library
+    res.json({ result });
+    console.log(req);
+    console.log(res);
+  } catch (error) {
+    res.status(400).json({ error: "Invalid expression" });
   }
-
-  let result;
-  switch (operation) {
-    case "add":
-      result = num1 + num2;
-      break;
-    case "subtract":
-      result = num1 - num2;
-      break;
-    case "multiply":
-      result = num1 * num2;
-      break;
-    case "divide":
-      if (num2 === 0) {
-        return res.status(400).json({ error: "Division by zero" });
-      }
-      result = num1 / num2;
-      break;
-    default:
-      return res.status(400).json({ error: "Invalid operation" });
-  }
-
-  res.json({ result });
 });
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
